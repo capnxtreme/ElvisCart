@@ -32,20 +32,69 @@ window.addEventListener('keyup', e => keys[e.key] = false);
 // Track segments
 const segments = [];
 const segmentLength = 200;
-const trackLength = 100;
+const trackLength = 200; // Longer track
 const trackWidth = 2000;
+
+// Roadside objects
+const ROADSIDE_OBJECTS = {
+    palmTree: { width: 80, height: 200, color: '#228B22' },
+    diner: { width: 300, height: 150, color: '#FF69B4' },
+    billboard: { width: 150, height: 100, color: '#FFD700' },
+    cactus: { width: 60, height: 100, color: '#2F4F2F' },
+    gasStation: { width: 200, height: 120, color: '#DC143C' }
+};
 
 // Initialize track with curves and hills
 function initTrack() {
     console.log('Initializing track with', trackLength, 'segments');
     for (let i = 0; i < trackLength; i++) {
-        segments.push({
+        const segment = {
             index: i,
-            curve: Math.sin(i * 0.05) * 3, // Curves
-            y: Math.sin(i * 0.05) * 100 + Math.cos(i * 0.03) * 100, // Hills
-            color: i % 2 === 0 ? '#555' : '#666', // Alternating road colors
-            sideColor: i % 2 === 0 ? '#ff0000' : '#ffffff' // Rumble strips
-        });
+            curve: 0,
+            y: 0,
+            color: i % 2 === 0 ? '#404040' : '#383838',
+            sideColor: i % 2 === 0 ? '#ff0000' : '#ffffff',
+            roadside: []
+        };
+        
+        // Create varied track sections
+        if (i > 20 && i < 40) {
+            // S-curve section
+            segment.curve = Math.sin(i * 0.1) * 5;
+        } else if (i > 60 && i < 80) {
+            // Sharp right turn
+            segment.curve = 4;
+        } else if (i > 100 && i < 120) {
+            // Sharp left turn
+            segment.curve = -4;
+        } else if (i > 140 && i < 180) {
+            // Winding section
+            segment.curve = Math.sin(i * 0.08) * 3 + Math.cos(i * 0.05) * 2;
+        }
+        
+        // Hills
+        segment.y = Math.sin(i * 0.04) * 150 + Math.cos(i * 0.07) * 80;
+        
+        // Add roadside objects
+        if (i % 10 === 0) {
+            // Left side object
+            const leftObj = ['palmTree', 'cactus', 'billboard'][Math.floor(Math.random() * 3)];
+            segment.roadside.push({
+                type: leftObj,
+                x: -trackWidth * 0.8,
+                sprite: ROADSIDE_OBJECTS[leftObj]
+            });
+            
+            // Right side object
+            const rightObj = ['palmTree', 'diner', 'gasStation'][Math.floor(Math.random() * 3)];
+            segment.roadside.push({
+                type: rightObj,
+                x: trackWidth * 0.8,
+                sprite: ROADSIDE_OBJECTS[rightObj]
+            });
+        }
+        
+        segments.push(segment);
     }
     console.log('Track initialized with', segments.length, 'segments');
 }
@@ -154,12 +203,62 @@ function render() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Sky gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height / 2);
-    gradient.addColorStop(0, '#87CEEB');
-    gradient.addColorStop(1, '#FFB6C1');
-    ctx.fillStyle = gradient;
+    // Sky gradient with time of day effect
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height / 2);
+    const timeOfDay = (game.frame * 0.001) % 1; // Slow day/night cycle
+    
+    if (timeOfDay < 0.3) {
+        // Dawn
+        skyGradient.addColorStop(0, '#FF6B6B');
+        skyGradient.addColorStop(0.5, '#FFE66D');
+        skyGradient.addColorStop(1, '#87CEEB');
+    } else if (timeOfDay < 0.7) {
+        // Day
+        skyGradient.addColorStop(0, '#87CEEB');
+        skyGradient.addColorStop(1, '#98D8E8');
+    } else {
+        // Dusk
+        skyGradient.addColorStop(0, '#4A5C6A');
+        skyGradient.addColorStop(0.5, '#FF6B6B');
+        skyGradient.addColorStop(1, '#FFB6C1');
+    }
+    
+    ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Sun/Moon
+    const celestialY = 80;
+    const celestialX = canvas.width * 0.8;
+    ctx.fillStyle = timeOfDay < 0.7 ? '#FFD700' : '#F0E68C';
+    ctx.beginPath();
+    ctx.arc(celestialX, celestialY, 40, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    for (let i = 0; i < 5; i++) {
+        const cloudX = (i * 200 + game.frame * 0.1) % (canvas.width + 100) - 50;
+        const cloudY = 50 + i * 30;
+        
+        // Simple cloud shape
+        ctx.beginPath();
+        ctx.arc(cloudX, cloudY, 30, 0, Math.PI * 2);
+        ctx.arc(cloudX + 25, cloudY, 35, 0, Math.PI * 2);
+        ctx.arc(cloudX + 50, cloudY, 30, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Draw distant mountains
+    ctx.fillStyle = '#4A5C6A';
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height / 2);
+    for (let x = 0; x <= canvas.width; x += 50) {
+        const mountainHeight = Math.sin(x * 0.01) * 50 + Math.cos(x * 0.02) * 30 + canvas.height / 2 - 100;
+        ctx.lineTo(x, mountainHeight);
+    }
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.closePath();
+    ctx.fill();
     
     // Calculate camera position
     const baseSegment = Math.floor(player.position / segmentLength);
@@ -198,12 +297,21 @@ function render() {
         
         // Only draw if segment is visible and in front of camera
         if (p1.w > 0 && p1.scale > 0 && p1.y > 0 && p1.y < canvas.height) {
-            // Draw grass
-            ctx.fillStyle = n % 2 ? '#2d5a1e' : '#2d6a1e';
+            // Draw grass with gradient
+            const grassGradient = ctx.createLinearGradient(0, p1.y, 0, canvas.height);
+            const grassColor1 = n % 2 ? '#2d5a1e' : '#2d6a1e';
+            const grassColor2 = n % 2 ? '#1d4a0e' : '#1d5a0e';
+            grassGradient.addColorStop(0, grassColor1);
+            grassGradient.addColorStop(1, grassColor2);
+            ctx.fillStyle = grassGradient;
             ctx.fillRect(0, p1.y, canvas.width, canvas.height - p1.y);
             
-            // Draw road
-            ctx.fillStyle = segment.color;
+            // Draw road with better shading
+            const roadGradient = ctx.createLinearGradient(p1.x, 0, p2.x, 0);
+            roadGradient.addColorStop(0, '#303030');
+            roadGradient.addColorStop(0.5, segment.color);
+            roadGradient.addColorStop(1, '#303030');
+            ctx.fillStyle = roadGradient;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -272,6 +380,81 @@ function render() {
                 }
                 ctx.stroke();
                 ctx.setLineDash([]);
+            }
+            
+            // Draw roadside objects
+            if (segment.roadside && p1.scale > 0.4 && p1.scale < 15) {
+                segment.roadside.forEach(obj => {
+                    const objX = p1.x + (obj.x - cameraX) * p1.scale;
+                    const objY = p1.y;
+                    const objW = obj.sprite.width * p1.scale;
+                    const objH = obj.sprite.height * p1.scale;
+                    
+                    // Simple object rendering
+                    ctx.fillStyle = obj.sprite.color;
+                    
+                    switch(obj.type) {
+                        case 'palmTree':
+                            // Trunk
+                            ctx.fillStyle = '#8B4513';
+                            ctx.fillRect(objX - objW/6, objY - objH, objW/3, objH);
+                            // Leaves
+                            ctx.fillStyle = '#228B22';
+                            ctx.beginPath();
+                            ctx.arc(objX, objY - objH, objW/2, 0, Math.PI * 2);
+                            ctx.fill();
+                            break;
+                            
+                        case 'cactus':
+                            ctx.fillStyle = '#2F4F2F';
+                            ctx.fillRect(objX - objW/2, objY - objH, objW, objH);
+                            // Arms
+                            ctx.fillRect(objX - objW, objY - objH/2, objW/3, objH/3);
+                            ctx.fillRect(objX + objW*0.7, objY - objH*0.7, objW/3, objH/3);
+                            break;
+                            
+                        case 'billboard':
+                            // Post
+                            ctx.fillStyle = '#654321';
+                            ctx.fillRect(objX - 5, objY - objH, 10, objH);
+                            // Sign
+                            ctx.fillStyle = '#FFD700';
+                            ctx.fillRect(objX - objW/2, objY - objH, objW, objH/2);
+                            // Text
+                            ctx.fillStyle = '#000';
+                            ctx.font = Math.floor(objH/8) + 'px Arial';
+                            ctx.fillText('ELVIS', objX - objW/3, objY - objH*0.7);
+                            break;
+                            
+                        case 'diner':
+                            // Building
+                            ctx.fillStyle = '#FF69B4';
+                            ctx.fillRect(objX - objW/2, objY - objH, objW, objH);
+                            // Roof
+                            ctx.fillStyle = '#8B0000';
+                            ctx.beginPath();
+                            ctx.moveTo(objX - objW/2 - 20, objY - objH);
+                            ctx.lineTo(objX + objW/2 + 20, objY - objH);
+                            ctx.lineTo(objX, objY - objH - 40);
+                            ctx.closePath();
+                            ctx.fill();
+                            // Sign
+                            ctx.fillStyle = '#FFF';
+                            ctx.font = Math.floor(objH/6) + 'px Arial';
+                            ctx.fillText('DINER', objX - objW/4, objY - objH/2);
+                            break;
+                            
+                        case 'gasStation':
+                            // Canopy
+                            ctx.fillStyle = '#DC143C';
+                            ctx.fillRect(objX - objW/2, objY - objH, objW, 20);
+                            // Pumps
+                            ctx.fillStyle = '#B22222';
+                            ctx.fillRect(objX - objW/3, objY - objH + 20, 30, objH - 20);
+                            ctx.fillRect(objX + objW/4, objY - objH + 20, 30, objH - 20);
+                            break;
+                    }
+                });
             }
         }
     }
