@@ -42,8 +42,8 @@ export function createCharacterSelectScreen() {
     const grid = document.createElement('div');
     grid.style.cssText = `
         display: grid;
-        grid-template-columns: repeat(2, 400px);
-        gap: 20px;
+        grid-template-columns: repeat(2, 500px);
+        gap: 30px;
         margin-bottom: 30px;
     `;
     
@@ -86,6 +86,9 @@ function createCharacterCard(character) {
         cursor: pointer;
         transition: all 0.3s;
         border: 3px solid ${character.id === selectedCharacter ? '#FFD700' : 'transparent'};
+        min-height: 220px;
+        display: flex;
+        align-items: flex-start;
     `;
     
     card.onclick = () => {
@@ -97,8 +100,8 @@ function createCharacterCard(character) {
     const sprite = document.createElement('img');
     sprite.src = getCharacterSprite(character.id);
     sprite.style.cssText = `
-        width: 96px;
-        height: 96px;
+        width: 192px;
+        height: 192px;
         image-rendering: pixelated;
         float: left;
         margin-right: 15px;
@@ -107,6 +110,11 @@ function createCharacterCard(character) {
     
     // Character info
     const info = document.createElement('div');
+    info.style.cssText = `
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    `;
     info.innerHTML = `
         <h3 style="margin: 0; color: ${character.color};">${character.name}</h3>
         <p style="margin: 5px 0; font-size: 12px; font-style: italic;">"${character.catchphrase}"</p>
