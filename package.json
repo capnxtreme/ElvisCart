@@ -1,0 +1,13 @@
+{
+  "name": "elviscart",
+  "version": "0.1.0",
+  "description": "Rockabilly pseudo-3D kart racing game",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "start": "npm run dev"
+  },
+  "keywords": ["game", "racing", "kart", "rockabilly", "retro"],
+  "author": "",
+  "license": "MIT"
+}
