@@ -93,7 +93,7 @@ function createCharacterCard(character) {
         updateCharacterSelection();
     };
     
-    // Character sprite
+    // Character sprite (portrait)
     const sprite = document.createElement('img');
     sprite.src = getCharacterSprite(character.id);
     sprite.style.cssText = `
