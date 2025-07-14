@@ -401,7 +401,7 @@ function renderKartSprite(kart, size, number) {
         let frameIndex = Math.round(((rotation + Math.PI) / (Math.PI * 2)) * frames) % frames;
         
         // Draw the sprite
-        const spriteSize = 96; // Bigger kart sprites!
+        const spriteSize = 288; // Triple size kart sprites!
         ctx().save();
         ctx().imageSmoothingEnabled = false;
         

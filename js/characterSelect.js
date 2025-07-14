@@ -42,7 +42,7 @@ export function createCharacterSelectScreen() {
     const grid = document.createElement('div');
     grid.style.cssText = `
         display: grid;
-        grid-template-columns: repeat(2, 300px);
+        grid-template-columns: repeat(2, 400px);
         gap: 20px;
         margin-bottom: 30px;
     `;
@@ -97,8 +97,8 @@ function createCharacterCard(character) {
     const sprite = document.createElement('img');
     sprite.src = getCharacterSprite(character.id);
     sprite.style.cssText = `
-        width: 64px;
-        height: 64px;
+        width: 96px;
+        height: 96px;
         image-rendering: pixelated;
         float: left;
         margin-right: 15px;

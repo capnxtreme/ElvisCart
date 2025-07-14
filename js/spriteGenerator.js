@@ -3,12 +3,12 @@ export class SpriteGenerator {
     constructor() {
         this.canvas = document.createElement('canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.pixelSize = 4;
+        this.pixelSize = 12; // Triple size for bigger pixels
     }
     
     // Generate a character sprite (for UI/selection screen)
     generateCharacterSprite(character, angle = 0) {
-        const size = 64; // Base sprite size
+        const size = 192; // Triple size! Was 64
         this.canvas.width = size;
         this.canvas.height = size;
         
@@ -38,7 +38,7 @@ export class SpriteGenerator {
     
     // Generate a kart sprite (rear view for racing)
     generateKartSprite(character, angle = 0) {
-        const size = 96; // Bigger sprite size for karts
+        const size = 288; // Triple size! Was 96
         this.canvas.width = size;
         this.canvas.height = size;
         
@@ -71,13 +71,14 @@ export class SpriteGenerator {
         const ctx = this.ctx;
         const cx = size / 2;
         const cy = size / 2;
+        const scale = size / 64; // Scale factor from original 64px design
         
         // Just draw the character portrait
         
         // Elvis's pompadour hair
         ctx.fillStyle = '#000000';
-        this.drawPixel(cx - 4, cy - 12, 8, 6);
-        this.drawPixel(cx - 6, cy - 10, 12, 4);
+        this.drawPixel(cx - 4*scale, cy - 12*scale, 8*scale, 6*scale);
+        this.drawPixel(cx - 6*scale, cy - 10*scale, 12*scale, 4*scale);
         
         // Face
         ctx.fillStyle = '#FDBCB4';
@@ -159,6 +160,8 @@ export class SpriteGenerator {
         // Guitar outline
         ctx.fillStyle = '#8B4513';
         this.drawPixel(cx + 6, cy - 4, 3, 8);
+        
+        ctx.restore();
     }
     
     // Draw Buddy "The Bopper" Holly
@@ -232,11 +235,11 @@ export class SpriteGenerator {
     // Draw Elvis kart - Pink Cadillac with fins!
     drawElvisKart(size, angle) {
         const ctx = this.ctx;
-        const cx = size / 2;
-        const cy = size / 2;
+        const scale = size / 96; // Scale from original 96px design
         
         ctx.save();
-        ctx.translate(cx, cy);
+        ctx.translate(size / 2, size / 2);
+        ctx.scale(scale, scale);
         ctx.rotate(angle);
         
         // Huge pink Cadillac body
@@ -292,11 +295,11 @@ export class SpriteGenerator {
     // Draw Betty kart - Hot rod with dice!
     drawBettyKart(size, angle) {
         const ctx = this.ctx;
-        const cx = size / 2;
-        const cy = size / 2;
+        const scale = size / 96;
         
         ctx.save();
-        ctx.translate(cx, cy);
+        ctx.translate(size / 2, size / 2);
+        ctx.scale(scale, scale);
         ctx.rotate(angle);
         
         // Hot pink hot rod body
@@ -349,11 +352,11 @@ export class SpriteGenerator {
     // Draw Johnny kart - Black hot rod with flames!
     drawJohnnyKart(size, angle) {
         const ctx = this.ctx;
-        const cx = size / 2;
-        const cy = size / 2;
+        const scale = size / 96;
         
         ctx.save();
-        ctx.translate(cx, cy);
+        ctx.translate(size / 2, size / 2);
+        ctx.scale(scale, scale);
         ctx.rotate(angle);
         
         // Sleek black body
@@ -412,11 +415,11 @@ export class SpriteGenerator {
     // Draw Buddy kart - Blue classic with musical notes!
     drawBuddyKart(size, angle) {
         const ctx = this.ctx;
-        const cx = size / 2;
-        const cy = size / 2;
+        const scale = size / 96;
         
         ctx.save();
-        ctx.translate(cx, cy);
+        ctx.translate(size / 2, size / 2);
+        ctx.scale(scale, scale);
         ctx.rotate(angle);
         
         // Classic blue body
@@ -477,7 +480,7 @@ export class SpriteGenerator {
     // Generate sprite sheet with multiple angles for karts
     generateKartSpriteSheet(character) {
         const angles = 16; // Number of rotation frames
-        const spriteSize = 96; // Bigger sprites!
+        const spriteSize = 288; // Triple size! Was 96
         const sheetWidth = spriteSize * angles;
         
         this.canvas.width = sheetWidth;
