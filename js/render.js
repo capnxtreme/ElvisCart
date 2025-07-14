@@ -218,12 +218,12 @@ export function renderTrack() {
             }
             
             // Draw roadside objects
-            renderRoadsideObjects(segment, p1, p2, player.x, cameraHeight, cameraZ);
+            renderRoadsideObjects(segment, p1, p2, player.x);
         }
     }
 }
 
-function renderRoadsideObjects(segment, p1, p2, cameraX, cameraHeight, cameraZ) {
+function renderRoadsideObjects(segment, p1, p2, cameraX) {
     if (segment.roadside && p1.scale > 0.4 && p1.scale < 15) {
         segment.roadside.forEach(obj => {
             const objX = p1.x + (obj.x - cameraX) * p1.scale;
@@ -388,6 +388,12 @@ export function renderKart(kart, isPlayer = false) {
 function renderKartSprite(kart, size, number) {
     const rotation = kart.steering * 0.5 + (kart.driftAngle || 0) * 0.3;
     
+    // Draw shadow first (always)
+    ctx().fillStyle = 'rgba(0,0,0,0.3)';
+    ctx().beginPath();
+    ctx().ellipse(0, size * 0.4, size * 0.6, size * 0.2, 0, 0, Math.PI * 2);
+    ctx().fill();
+    
     // If kart has a sprite sheet, use it
     if (kart.spriteSheet && kart.spriteSheet.complete) {
         // Calculate which frame to use based on rotation
@@ -402,6 +408,14 @@ function renderKartSprite(kart, size, number) {
         // Draw effects behind sprite
         renderKartEffects(kart, size);
         
+        // Draw collision flash
+        if (kart.collisionTimer && kart.collisionTimer > 0) {
+            ctx().fillStyle = '#FFF';
+            ctx().globalAlpha = kart.collisionTimer * 2;
+            ctx().fillRect(-size/2 - 10, -size/2 - 10, size + 20, size + 20);
+            ctx().globalAlpha = 1;
+        }
+        
         // Draw sprite
         try {
             ctx().drawImage(
@@ -411,8 +425,21 @@ function renderKartSprite(kart, size, number) {
                 -size/2, -size/2,            // Dest x, y
                 size, size                    // Dest width, height
             );
+            
+            // Draw name tag for sprites
+            if (kart.name) {
+                ctx().fillStyle = '#FFF';
+                ctx().font = '14px Arial';
+                ctx().textAlign = 'center';
+                ctx().fillText(kart.name, 0, -size);
+                ctx().textAlign = 'left';
+            }
         } catch (e) {
             // Fallback if sprite fails
+            ctx().restore();
+            ctx().save();
+            ctx().rotate(rotation);
+            renderKartEffects(kart, size);
             renderBasicKart(kart, size, number);
         }
         
@@ -421,9 +448,11 @@ function renderKartSprite(kart, size, number) {
     }
     
     // Fallback to basic kart rendering
+    ctx().save();
     ctx().rotate(rotation);
     renderKartEffects(kart, size);
     renderBasicKart(kart, size, number);
+    ctx().restore();
 }
 
 function renderKartEffects(kart, size) {
@@ -469,51 +498,6 @@ function renderKartEffects(kart, size) {
             ctx().fill();
         }
         ctx().restore();
-    }
-    
-    // Shadow
-    ctx().fillStyle = 'rgba(0,0,0,0.3)';
-    ctx().beginPath();
-    ctx().ellipse(0, size * 0.4, size * 0.6, size * 0.2, 0, 0, Math.PI * 2);
-    ctx().fill();
-    
-    // Collision flash
-    if (kart.collisionTimer && kart.collisionTimer > 0) {
-        ctx().fillStyle = '#FFF';
-        ctx().globalAlpha = kart.collisionTimer * 2;
-        ctx().fillRect(-size/2 - 10, -size/2 - 10, size + 20, size * 0.7 + 20);
-        ctx().globalAlpha = 1;
-    }
-    
-    // Kart body
-    ctx().fillStyle = kart.color || '#ff1493';
-    ctx().fillRect(-size/2, -size/2, size, size * 0.7);
-    
-    // Number
-    if (number > 1) {
-        ctx().fillStyle = '#FFF';
-        ctx().font = Math.floor(size * 0.4) + 'px Arial';
-        ctx().textAlign = 'center';
-        ctx().fillText(number.toString(), 0, -size * 0.1);
-    }
-    
-    // Windshield
-    ctx().fillStyle = 'rgba(65, 105, 225, 0.7)';
-    ctx().fillRect(-size/3, -size/3, size * 0.66, size * 0.3);
-    
-    // Wheels
-    ctx().fillStyle = '#000';
-    ctx().fillRect(-size/2 - 10, -size/2 + 5, 20, 30);
-    ctx().fillRect(size/2 - 10, -size/2 + 5, 20, 30);
-    ctx().fillRect(-size/2 - 10, size/4, 20, 30);
-    ctx().fillRect(size/2 - 10, size/4, 20, 30);
-    
-    // Name tag
-    if (kart.name) {
-        ctx().fillStyle = '#FFF';
-        ctx().font = '14px Arial';
-        ctx().textAlign = 'center';
-        ctx().fillText(kart.name, 0, -size);
     }
 }
 
