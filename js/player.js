@@ -23,7 +23,10 @@ export const player = {
     powerUpTimer: 0,
     shielded: false,
     slipping: false,
-    collisionTimer: 0
+    collisionTimer: 0,
+    character: null,
+    color: '#FF1493',
+    spriteSheet: null
 };
 
 export function resetPlayer() {

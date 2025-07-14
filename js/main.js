@@ -9,12 +9,23 @@ import { checkCollisions } from './collision.js';
 import { player } from './player.js';
 import { opponents } from './opponents.js';
 import * as render from './render.js';
+import { initCharacterSelect, createCharacterSelectScreen } from './characterSelect.js';
+import { initSprites } from './characterSprites.js';
 
 // Initialize game
 export function init() {
     const canvas = document.getElementById('gameCanvas');
     setCanvas(canvas);
     initInput();
+    initSprites();
+    initCharacterSelect();
+}
+
+// Show character selection screen
+export function showCharacterSelect() {
+    document.getElementById('startScreen').style.display = 'none';
+    const selectScreen = createCharacterSelectScreen();
+    document.getElementById('gameContainer').appendChild(selectScreen);
 }
 
 // Start game
@@ -106,8 +117,9 @@ function gameLoop(currentTime = 0) {
     requestAnimationFrame(gameLoop);
 }
 
-// Make startGame available globally
+// Make functions available globally
 window.startGame = startGame;
+window.showCharacterSelect = showCharacterSelect;
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', init);
