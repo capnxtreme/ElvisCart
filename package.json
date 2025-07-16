@@ -1,13 +1,40 @@
 {
-  "name": "elviscart",
-  "version": "0.1.0",
-  "description": "Rockabilly pseudo-3D kart racing game",
+  "name": "retro-racing-engine",
+  "version": "1.0.0",
+  "description": "A powerful, easy-to-use game engine for creating professional-quality retro racing games inspired by SNES Mode 7",
   "main": "index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "build": "echo 'Build process would go here'",
+    "test": "echo 'Tests would go here'"
   },
-  "keywords": ["game", "racing", "kart", "rockabilly", "retro"],
-  "author": "",
-  "license": "MIT"
+  "keywords": [
+    "game-engine",
+    "racing",
+    "retro",
+    "mode7",
+    "javascript",
+    "canvas",
+    "html5",
+    "mario-kart",
+    "f-zero",
+    "game-development"
+  ],
+  "author": "Retro Racing Engine Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/retro-racing-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/retro-racing-engine/issues"
+  },
+  "homepage": "https://github.com/your-username/retro-racing-engine#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
 }
