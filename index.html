@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ElvisCart - Rockabilly Racing</title>
+    <title>Retro Racing Engine - Enhanced Mode 7 Style</title>
     <style>
         body {
             margin: 0;
@@ -14,11 +14,14 @@
             align-items: center;
             min-height: 100vh;
             font-family: 'Courier New', monospace;
+            overflow: hidden;
         }
         
         #gameContainer {
             position: relative;
             box-shadow: 0 0 50px rgba(255, 105, 180, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
         }
         
         #gameCanvas {
@@ -26,6 +29,7 @@
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
+            border-radius: 10px;
         }
         
         #startScreen {
@@ -41,6 +45,7 @@
             align-items: center;
             color: white;
             text-align: center;
+            border-radius: 10px;
         }
         
         h1 {
@@ -48,6 +53,12 @@
             margin: 0;
             text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
             animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            margin: 10px 0 30px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         @keyframes pulse {
@@ -61,6 +72,7 @@
             background: rgba(0,0,0,0.5);
             padding: 20px;
             border-radius: 10px;
+            max-width: 400px;
         }
         
         .startButton {
@@ -79,21 +91,130 @@
         .startButton:hover {
             transform: scale(1.1);
         }
+        
+        .features {
+            margin-top: 20px;
+            font-size: 16px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 500px;
+        }
+        
+        .features ul {
+            text-align: left;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .features li {
+            margin: 5px 0;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <canvas id="gameCanvas" width="1024" height="576"></canvas>
         <div id="startScreen">
-            <h1>🎸 ELVISCART 🎸</h1>
-            <div class="controls">
-                <p>⬆️ Accelerate</p>
-                <p>⬅️ ➡️ Steer</p>
-                <p>SPACE Drift</p>
+            <h1>🏁 RETRO RACING ENGINE 🏁</h1>
+            <div class="subtitle">Enhanced Mode 7 Style</div>
+            <div class="features">
+                <strong>Professional Racing Game Engine</strong>
+                <ul>
+                    <li>🎮 Easy-to-use API for game developers</li>
+                    <li>🚗 Multiple vehicle types (Kart, Car, Bike, F-Zero)</li>
+                    <li>🏁 Advanced track creation and management</li>
+                    <li>✨ Enhanced visual effects and particles</li>
+                    <li>🎵 Audio system with music and sound effects</li>
+                    <li>🎯 Advanced AI with personality-based opponents</li>
+                    <li>📱 Touch controls for mobile devices</li>
+                    <li>🎮 Gamepad support</li>
+                </ul>
             </div>
-            <button class="startButton" onclick="showCharacterSelect()">START YOUR ENGINES!</button>
+            <div class="controls">
+                <p>⬆️ Accelerate | ⬅️ ➡️ Steer</p>
+                <p>SPACE Drift | ENTER Boost</p>
+                <p>ESC Pause | R Reset</p>
+            </div>
+            <button class="startButton" onclick="startEngine()">START YOUR ENGINES!</button>
+        </div>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <div>Initializing Retro Racing Engine...</div>
         </div>
     </div>
-    <script type="module" src="js/main.js"></script>
+    
+    <script type="module" src="js/example-game.js"></script>
+    <script>
+        // Global function to start the engine
+        window.startEngine = async function() {
+            const startScreen = document.getElementById('startScreen');
+            const loading = document.getElementById('loading');
+            
+            startScreen.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                // The engine will be initialized by the example-game.js module
+                // We just need to wait for it to be ready
+                await new Promise(resolve => {
+                    const checkEngine = () => {
+                        if (window.game && window.game.engine) {
+                            resolve();
+                        } else {
+                            setTimeout(checkEngine, 100);
+                        }
+                    };
+                    checkEngine();
+                });
+                
+                // Start the race
+                if (window.game) {
+                    window.game.startRace();
+                }
+                
+                loading.style.display = 'none';
+            } catch (error) {
+                console.error('Failed to start engine:', error);
+                loading.innerHTML = `
+                    <div style="color: #ff4444;">
+                        <div>❌ Engine failed to start</div>
+                        <div style="font-size: 14px; margin-top: 10px;">Check console for details</div>
+                    </div>
+                `;
+            }
+        };
+        
+        // Show loading screen initially
+        document.addEventListener('DOMContentLoaded', () => {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+        });
+    </script>
 </body>
 </html>
